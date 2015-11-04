@@ -164,6 +164,12 @@ int do_mb_deposit() {
 		last->next = msg;
 		mailbox->num_msg++;
 	}
+	
+	// DEBUG
+	printf ("text: %s\n", msg->text);
+	printf ("pid_recv: %d\n", msg->receivers_pid[0]);
+	printf ("num_rec: %d\n", msg->num_rec);
+	printf ("next: %p\n", (void *) msg->next);
 
 	/* Notify */
 	for (int i=0; i<num_recv; i++) {
@@ -183,6 +189,9 @@ int do_mb_retrieve() {
 	int buffer_len = m_in.m1_i2;
 	char *buffer = m_in.m1_p1;
 
+	// DEBUG
+	printf ("id: %d\n", id);
+	
 	/* Error Handling */
 	// Begin of critic area
 	mb_mailbox_t* mailbox = getMailboxByID(id);
@@ -199,8 +208,19 @@ int do_mb_retrieve() {
 		// Recorrer los mensajes del mailbox y en cada mensaje los pid a los que va dirigido.
 		int* list_pids = msg->receivers_pid;
 		for (int j=0; i<msg->num_rec; j++) {
-			if (list_pids[j] == my_pid){
+//			if (list_pids[j] == my_pid){
 				if (strlen(msg->text) < buffer_len) {
+
+
+	// DEBUG
+	printf ("text: %s\n", msg->text);
+	printf ("pid_recv: %d\n", msg->receivers_pid[0]);
+	printf ("num_rec: %d\n", msg->num_rec);
+	printf ("next: %p\n", (void *) msg->next);
+	printf ("list_pids[0]: %d\n", list_pids[0]);
+	printf ("PID real: %d\n", current->pid);
+
+
 					sys_datacopy(SELF, (vir_bytes)msg->text,
 						who_e, (vir_bytes)buffer, strlen(msg->text) + 1);
 					while (j<msg->num_rec-1) {
@@ -214,7 +234,7 @@ int do_mb_retrieve() {
 				} else {
 					return MB_BUFFERTOOSMALL_ERROR;
 				}
-			}
+//			}
 		}
 		msg_prv = msg;
 		msg = msg->next;
